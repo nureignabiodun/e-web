@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order Details - {{ order.order_number }}{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-8">
+        <h2>
+            <i class="fas fa-box me-2"></i>Order Details
+            <span class="order-number ms-2">{{ order.order_number }}</span>
+        </h2>
+
+        <!-- Order Status -->
+        <div class="order-detail">
+            <div class="order-header">
+                <h5><i class="fas fa-info-circle me-2"></i>Order Information</h5>
+                <span class="order-status {{ order.status|lower }}">
+                    {{ order.get_status_display }}
+                </span>
+            </div>
+            <div class="order-items">
+                {% for item in order.items.all %}
+                <div class="order-item">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <img src="{{ item.product.image.url }}" alt="{{ item.product.name }}" style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px;">
+                        </div>
+                        <div class="col-md-6">
+                            <h5 class="mb-1">{{ item.product.name }}</h5>
+                            <p class="text-muted mb-0">Quantity: {{ item.quantity }}</p>
+                        </div>
+                        <div class="col-md-3 text-end">
+                            <h5 class="mb-0">₦{{ item.get_total_price }}</h5>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div class="order-summary">
+                <div class="summary-row">
+                    <span>Subtotal:</span>
+                    <span>₦{{ order.total_amount }}</span>
+                </div>
+                <div class="summary-row">
+                    <span>Shipping:</span>
+                    <span>₦0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>Tax:</span>
+                    <span>₦0.00</span>
+                </div>
+                <div class="summary-row summary-total">
+                    <span>Total:</span>
+                    <span>₦{{ order.total_amount }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shipping Address -->
+        <div class="order-detail">
+            <div class="order-header">
+                <h5><i class="fas fa-map-marker-alt me-2"></i>Shipping Address</h5>
+            </div>
+            <div class="card-body">
+                <p><strong>{{ order.shipping_address.full_name }}</strong></p>
+                <p>{{ order.shipping_address.address_line1 }}</p>
+                {% if order.shipping_address.address_line2 %}
+                <p>{{ order.shipping_address.address_line2 }}</p>
+                {% endif %}
+                <p>{{ order.shipping_address.city }}, {{ order.shipping_address.state }} {{ order.shipping_address.postal_code }}</p>
+                <p>{{ order.shipping_address.country }}</p>
+                <p><i class="fas fa-phone me-2"></i>{{ order.shipping_address.phone_number }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Order Tracking -->
+    <div class="col-md-4">
+        <div class="order-tracking">
+            <h4 class="tracking-title">Order Tracking</h4>
+            {% for track in tracking_history %}
+            <div class="tracking-step {% if forloop.first %}active{% endif %}">
+                <h5>{{ track.get_status_display }}</h5>
+                <p>{{ track.created_at|date:"M d, Y h:i A" }}</p>
+                {% if track.location %}
+                <p><i class="fas fa-map-marker-alt me-1"></i>{{ track.location }}</p>
+                {% endif %}
+                {% if track.description %}
+                <p class="text-muted">{{ track.description }}</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="card mt-4">
+            <div class="card-body text-center">
+                <h5 class="card-title">Need Help?</h5>
+                <p class="card-text">Contact us for any questions about your order</p>
+                <a href="tel:+234123456789" class="btn btn-primary me-2">
+                    <i class="fas fa-phone me-2"></i>Call Us
+                </a>
+                <a href="mailto:support@imperiallumine.com" class="btn btn-outline-primary">
+                    <i class="fas fa-envelope me-2"></i>Email Us
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="mt-4">
+    <a href="{% url 'store:order_list' %}" class="btn btn-outline-primary">
+        <i class="fas fa-arrow-left me-2"></i>Back to Orders
+    </a>
+</div>
+{% endblock %}

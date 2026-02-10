@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard - Imperial Luminé{% endblock %}
+
+{% block content %}
+<div class="section">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1><i class="fas fa-tachometer-alt me-2"></i>Admin Dashboard</h1>
+            <div>
+                <a href="{% url 'store:admin_product_create' %}" class="btn btn-primary">
+                    <i class="fas fa-plus me-2"></i>Add New Product
+                </a>
+            </div>
+        </div>
+
+        <!-- Quick Stats Cards -->
+        <div class="row mb-5">
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="d-flex align-items-center justify-content-center" style="height: 150px;">
+                            <i class="fas fa-box-open fa-3x text-primary"></i>
+                        </div>
+                        <h3 class="mb-1">{{ total_orders }}</h3>
+                        <p class="text-muted mb-0">Total Orders</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="d-flex align-items-center justify-content-center" style="height: 150px;">
+                            <i class="fas fa-hourglass-half fa-3x text-warning"></i>
+                        </div>
+                        <h3 class="mb-1">{{ pending_orders }}</h3>
+                        <p class="text-muted mb-0">Pending Orders</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="d-flex align-items-center justify-content-center" style="height: 150px;">
+                            <i class="fas fa-truck-loading fa-3x text-info"></i>
+                        </div>
+                        <h3 class="mb-1">{{ delivered_orders }}</h3>
+                        <p class="text-muted mb-0">Delivered Orders</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <div class="d-flex align-items-center justify-content-center" style="height: 150px;">
+                            <i class="fas fa-chart-line fa-3x text-success"></i>
+                        </div>
+                        <h3 class="mb-1">₦{{ total_revenue|floatformat:2 }}</h3>
+                        <p class="text-muted mb-0">Total Revenue</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Admin Navigation Tabs -->
+        <div class="mb-4">
+            <ul class="nav nav-tabs" id="adminTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="orders-tab" data-bs-toggle="tab" data-bs-target="#orders" type="button" role="tab" aria-controls="orders" aria-selected="true">
+                        <i class="fas fa-shopping-bag me-2"></i>Orders
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="products-tab" data-bs-toggle="tab" data-bs-target="#products" type="button" role="tab" aria-controls="products" aria-selected="false">
+                        <i class="fas fa-box me-2"></i>Products
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="categories-tab" data-bs-toggle="tab" data-bs-target="#categories" type="button" role="tab" aria-controls="categories" aria-selected="false">
+                        <i class="fas fa-tags me-2"></i>Categories
+                    </button>
+                </li>
+            </ul>
+
+            <div class="tab-content" id="adminTabsContent">
+                <!-- Orders Tab -->
+                <div class="tab-pane fade show active" id="orders" role="tabpanel" aria-labelledby="orders-tab">
+                    <div class="card mt-3">
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-receipt me-2"></i>Recent Orders</h5>
+                            <a href="{% url 'store:admin_order_list' %}" class="btn btn-sm btn-light">
+                                <i class="fas fa-list me-1"></i>View All
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>Order #</th>
+                                            <th>Customer</th>
+                                            <th>Date</th>
+                                            <th>Status</th>
+                                            <th>Amount</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for order in recent_orders %}
+                                        <tr>
+                                            <td>
+                                                <span class="order-number">{{ order.order_number }}</span><br>
+                                                <small class="text-muted">{{ order.delivery_number }}</small>
+                                            </td>
+                                            <td>{{ order.user.get_full_name }}</td>
+                                            <td>{{ order.created_at|date:"M d, Y" }}</td>
+                                            <td>
+                                                <span class="order-status {{ order.status|lower }}">
+                                                    {{ order.get_status_display }}
+                                                </span>
+                                            </td>
+                                            <td><strong>₦{{ order.total_amount }}</strong></td>
+                                            <td>
+                                                <a href="{% url 'store:admin_order_detail' order.id %}" class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-eye"></i> View
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Products Tab -->
+                <div class="tab-pane fade" id="products" role="tabpanel" aria-labelledby="products-tab">
+                    <div class="card mt-3">
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-box me-2"></i>Product Management</h5>
+                            <a href="{% url 'store:admin_product_create' %}" class="btn btn-sm btn-success">
+                                <i class="fas fa-plus me-1"></i>Add Product
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>Product</th>
+                                            <th>Category</th>
+                                            <th>Price</th>
+                                            <th>Stock</th>
+                                            <th>Status</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for product in products %}
+                                        <tr>
+                                            <td>
+                                                <img src="{{ product.image.url }}" alt="{{ product.name }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 5px;">
+                                                <span class="ms-2">{{ product.name|truncatechars:30 }}</span>
+                                            </td>
+                                            <td>{{ product.category.get_display_name }}</td>
+                                            <td><strong>₦{{ product.price }}</strong></td>
+                                            <td>{{ product.stock }}</td>
+                                            <td>
+                                                {% if product.available %}
+                                                <span class="badge bg-success">Available</span>
+                                                {% else %}
+                                                <span class="badge bg-danger">Out of Stock</span>
+                                                {% endif %}
+                                            </td>
+                                            <td>
+                                                <a href="{% url 'store:admin_product_edit' product.id %}" class="btn btn-sm btn-warning">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="{% url 'store:admin_product_delete' product.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this product?')">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                            {% if not products %}
+                            <div class="alert alert-info text-center">
+                                <i class="fas fa-info-circle me-2"></i>No products found. Click "Add Product" to create your first product.
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Categories Tab -->
+                <div class="tab-pane fade" id="categories" role="tabpanel" aria-labelledby="categories-tab">
+                    <div class="card mt-3">
+                        <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0"><i class="fas fa-tags me-2"></i>Category Management</h5>
+                            <a href="{% url 'store:admin_category_create' %}" class="btn btn-sm btn-info">
+                                <i class="fas fa-plus me-1"></i>Add Category
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-hover">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>Category Name</th>
+                                            <th>Products Count</th>
+                                            <th>Created</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for category in categories %}
+                                        <tr>
+                                            <td><strong>{{ category.get_display_name }}</strong></td>
+                                            <td>{{ category.products.count }}</td>
+                                            <td>{{ category.created_at|date:"M d, Y" }}</td>
+                                            <td>
+                                                <a href="{% url 'store:product_list_by_category' category.slug %}" class="btn btn-sm btn-primary">
+                                                    <i class="fas fa-eye"></i> View Products
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

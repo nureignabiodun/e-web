@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+
+{% block title %}My Profile - E-Commerce Store{% endblock %}
+
+{% block content %}
+<h2><i class="fas fa-user me-2"></i>My Profile</h2>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-user-edit me-2"></i>Update Profile</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ profile_form|crispy }}
+                    <button type="submit" class="btn btn-primary">Update Profile</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>My Addresses</h5>
+            </div>
+            <div class="card-body">
+                {% if addresses %}
+                <div class="list-group">
+                    {% for address in addresses %}
+                    <div class="list-group-item">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div>
+                                <h6 class="mb-1">{{ address.full_name }}</h6>
+                                <p class="mb-1">{{ address.address_line1 }}</p>
+                                {% if address.address_line2 %}
+                                <p class="mb-1">{{ address.address_line2 }}</p>
+                                {% endif %}
+                                <p class="mb-1">{{ address.city }}, {{ address.state }} {{ address.postal_code }}</p>
+                                <p class="mb-0"><i class="fas fa-phone me-2"></i>{{ address.phone_number }}</p>
+                                {% if address.is_default %}
+                                <span class="badge bg-success mt-2">Default Address</span>
+                                {% endif %}
+                            </div>
+                            <div>
+                                <a href="{% url 'store:edit_address' address.id %}" class="btn btn-sm btn-outline-primary me-2">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{% url 'store:set_default_address' address.id %}" class="btn btn-sm btn-outline-success me-2">
+                                    <i class="fas fa-star"></i>
+                                </a>
+                                <a href="{% url 'store:delete_address' address.id %}" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this address?')">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">No addresses saved yet.</p>
+                {% endif %}
+                <a href="{% url 'store:add_address' %}" class="btn btn-primary mt-3">
+                    <i class="fas fa-plus me-2"></i>Add New Address
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

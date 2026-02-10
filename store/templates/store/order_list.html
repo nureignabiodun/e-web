@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}My Orders - E-Commerce Store{% endblock %}
+
+{% block content %}
+<h2><i class="fas fa-box me-2"></i>My Orders</h2>
+
+{% if orders %}
+<div class="table-responsive">
+    <table class="table table-hover">
+        <thead class="table-primary">
+            <tr>
+                <th>Order Number</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Total Amount</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>
+                    <strong>{{ order.order_number }}</strong><br>
+                    <small class="text-muted">{{ order.delivery_number }}</small>
+                </td>
+                <td>{{ order.created_at|date:"M d, Y" }}</td>
+                <td>
+                    {% if order.status == 'pending' %}
+                    <span class="badge bg-warning text-dark">{{ order.get_status_display }}</span>
+                    {% elif order.status == 'delivered' %}
+                    <span class="badge bg-success">{{ order.get_status_display }}</span>
+                    {% elif order.status == 'cancelled' %}
+                    <span class="badge bg-danger">{{ order.get_status_display }}</span>
+                    {% else %}
+                    <span class="badge bg-info">{{ order.get_status_display }}</span>
+                    {% endif %}
+                </td>
+                <td><strong>₦{{ order.total_amount }}</strong></td>
+                <td>
+                    <a href="{% url 'store:order_detail' order.id %}" class="btn btn-sm btn-primary">
+                        <i class="fas fa-eye"></i> View
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info text-center">
+    <i class="fas fa-box-open fa-3x mb-3"></i>
+    <h4>No orders yet</h4>
+    <p>Start shopping to see your orders here</p>
+    <a href="{% url 'store:product_list' %}" class="btn btn-primary">
+        <i class="fas fa-shopping-bag me-2"></i>Browse Products
+    </a>
+</div>
+{% endif %}
+{% endblock %}

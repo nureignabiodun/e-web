@@ -1,0 +1,200 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Home - Imperial Luminé{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="hero-content container">
+        <div class="row align-items-center">
+            <div class="col-lg-6">
+                <h1 class="hero-title">Elegance Redefined</h1>
+                <p class="hero-subtitle">Discover our exquisite collection of luxury products crafted with precision and passion. Experience the pinnacle of quality and style.</p>
+                <a href="{% url 'store:product_list' %}" class="btn btn-gold">
+                    <i class="fas fa-shopping-bag me-2"></i>Shop Now
+                </a>
+            </div>
+            <div class="col-lg-6 text-center">
+                <img src="{% static 'images/hero-image.png' %}" alt="Luxury Products" class="img-fluid" style="max-height: 500px; border-radius: 15px; box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="section">
+    <div class="container">
+        <div class="section-title">
+            <h2>Why Choose Imperial Luminé</h2>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="text-center feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-crown"></i>
+                    </div>
+                    <h3 class="mb-3">Premium Quality</h3>
+                    <p>Each product is meticulously crafted with the finest materials to ensure unparalleled quality and durability.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="text-center feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shipping-fast"></i>
+                    </div>
+                    <h3 class="mb-3">Fast Delivery</h3>
+                    <p>We offer express shipping with tracking for all orders, ensuring your luxury items arrive promptly and securely.</p>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="text-center feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-gem"></i>
+                    </div>
+                    <h3 class="mb-3">Exclusive Selection</h3>
+                    <p>Discover unique, limited-edition products not available anywhere else, curated just for our discerning clientele.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Categories Section -->
+<section class="section" style="background: rgba(13, 27, 42, 0.8);">
+    <div class="container">
+        <div class="section-title">
+            <h2>Our Collections</h2>
+        </div>
+        <div class="row g-4">
+            {% for category in categories %}
+            <div class="col-md-4 col-sm-6">
+                <a href="{% url 'store:product_list_by_category' category.slug %}" class="text-decoration-none">
+                    <div class="category-card">
+                        <h3>{{ category.get_display_name }}</h3>
+                    </div>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Featured Products -->
+<section class="section">
+    <div class="container">
+        <div class="section-title">
+            <h2>Featured Products</h2>
+        </div>
+        <div class="row g-4">
+            {% for product in featured_products %}
+            <div class="col-md-3 col-sm-6">
+                <div class="card">
+                    <div class="position-relative">
+                        <img src="{{ product.image.url }}" class="product-image" alt="{{ product.name }}">
+                        {% if product.get_discount_percentage > 0 %}
+                        <span class="discount-badge">-{{ product.get_discount_percentage }}%</span>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">{{ product.name|truncatechars:30 }}</h5>
+                        <p class="card-text text-muted">{{ product.description|truncatechars:60 }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                {% if product.old_price %}
+                                <span class="price-old">₦{{ product.old_price }}</span>
+                                {% endif %}
+                                <span class="price-new">₦{{ product.price }}</span>
+                            </div>
+                            <a href="{% url 'store:add_to_cart' product.id %}" class="btn btn-primary btn-sm">
+                                <i class="fas fa-cart-plus"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{% url 'store:product_list' %}" class="btn btn-outline-primary">View All Products</a>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="section" style="background: rgba(13, 27, 42, 0.8);">
+    <div class="container">
+        <div class="section-title">
+            <h2>Customer Testimonials</h2>
+        </div>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="me-3">
+                                <div class="rounded-circle" style="width: 60px; height: 60px; background: var(--secondary-color); display: flex; align-items: center; justify-content: center; color: var(--primary-color); font-size: 1.5rem; font-weight: 700;">S</div>
+                            </div>
+                            <div>
+                                <h5 class="mb-0">Sophie Williams</h5>
+                                <div class="rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="card-text">"The quality of the products exceeded my expectations. The packaging was elegant and the delivery was prompt. I'll definitely be a returning customer."</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="me-3">
+                                <div class="rounded-circle" style="width: 60px; height: 60px; background: var(--secondary-color); display: flex; align-items: center; justify-content: center; color: var(--primary-color); font-size: 1.5rem; font-weight: 700;">M</div>
+                            </div>
+                            <div>
+                                <h5 class="mb-0">Michael Johnson</h5>
+                                <div class="rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="card-text">"I purchased a watch from Imperial Luminé and the attention to detail is remarkable. The customer service was exceptional and the entire experience was seamless."</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center mb-3">
+                            <div class="me-3">
+                                <div class="rounded-circle" style="width: 60px; height: 60px; background: var(--secondary-color); display: flex; align-items: center; justify-content: center; color: var(--primary-color); font-size: 1.5rem; font-weight: 700;">A</div>
+                            </div>
+                            <div>
+                                <h5 class="mb-0">Alexandra Chen</h5>
+                                <div class="rating">
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                    <i class="fas fa-star"></i>
+                                </div>
+                            </div>
+                        </div>
+                        <p class="card-text">"The selection is impressive and the quality is unmatched. I've recommended Imperial Luminé to all my friends. The luxury experience starts from the moment you visit the website."</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

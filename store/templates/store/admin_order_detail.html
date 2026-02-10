@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Order Details - {{ order.order_number }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <h2>
+                <i class="fas fa-box me-2"></i>Order Details
+                <span class="order-number ms-2">{{ order.order_number }}</span>
+            </h2>
+
+            <!-- Order Status Update Form -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-sync-alt me-2"></i>Update Order Status</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Status</label>
+                                {{ form.status|add_class:"form-select" }}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Location</label>
+                                {{ form.location|add_class:"form-control" }}
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            {{ form.description|add_class:"form-control" }}
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-check-circle me-2"></i>Update Status
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Order Items -->
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-list me-2"></i>Order Items</h5>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Product</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for item in order.items.all %}
+                                <tr>
+                                    <td>{{ item.product.name }}</td>
+                                    <td>{{ item.quantity }}</td>
+                                    <td>₦{{ item.price }}</td>
+                                    <td><strong>₦{{ item.get_total_price }}</strong></td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shipping Address -->
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Shipping Address</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>{{ order.shipping_address.full_name }}</strong></p>
+                    <p>{{ order.shipping_address.address_line1 }}</p>
+                    {% if order.shipping_address.address_line2 %}
+                    <p>{{ order.shipping_address.address_line2 }}</p>
+                    {% endif %}
+                    <p>{{ order.shipping_address.city }}, {{ order.shipping_address.state }} {{ order.shipping_address.postal_code }}</p>
+                    <p>{{ order.shipping_address.country }}</p>
+                    <p><i class="fas fa-phone me-2"></i>{{ order.shipping_address.phone_number }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Order Tracking -->
+        <div class="col-md-4">
+            <div class="order-tracking">
+                <h4 class="tracking-title">Order Tracking</h4>
+                {% for track in tracking_history %}
+                <div class="tracking-step {% if forloop.first %}active{% endif %}">
+                    <h5>{{ track.get_status_display }}</h5>
+                    <p>{{ track.created_at|date:"M d, Y h:i A" }}</p>
+                    {% if track.location %}
+                    <p><i class="fas fa-map-marker-alt me-1"></i>{{ track.location }}</p>
+                    {% endif %}
+                    {% if track.description %}
+                    <p class="text-muted">{{ track.description }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        <a href="{% url 'store:admin_order_list' %}" class="btn btn-outline-primary">
+            <i class="fas fa-arrow-left me-2"></i>Back to Orders
+        </a>
+    </div>
+</div>
+{% endblock %}

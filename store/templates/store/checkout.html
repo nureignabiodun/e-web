@@ -1,0 +1,165 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+
+{% block title %}Checkout - Imperial Luminé{% endblock %}
+
+{% block content %}
+<h2 class="text-white"><i class="fas fa-credit-card me-2"></i>Checkout</h2>
+
+<div class="row">
+    <div class="col-md-8">
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-map-marker-alt me-2"></i>Shipping Address</h5>
+            </div>
+            <div class="card-body">
+                <form method="post" id="checkoutForm">
+                    {% csrf_token %}
+
+                    <!-- Address Selection -->
+                    <div class="mb-3">
+                        <label class="form-label text-white">Select Saved Address:</label>
+                        <select name="address" class="form-select" id="addressSelect" onchange="toggleAddressForm()">
+                            <option value="">-- Add New Address --</option>
+                            {% for addr in addresses %}
+                            <option value="{{ addr.id }}" {% if addr == default_address %}selected{% endif %}>
+                                {{ addr.full_name }} - {{ addr.address_line1 }}, {{ addr.city }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- New Address Form -->
+                    <div id="newAddressForm" style="display: {% if not default_address %}block{% else %}none{% endif %};">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-white">Full Name *</label>
+                                {{ form.full_name|add_class:"form-control" }}
+                                {% if form.full_name.errors %}
+                                <div class="text-danger">{{ form.full_name.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label text-white">Phone Number *</label>
+                                {{ form.phone_number|add_class:"form-control" }}
+                                {% if form.phone_number.errors %}
+                                <div class="text-danger">{{ form.phone_number.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-white">Address Line 1 *</label>
+                            {{ form.address_line1|add_class:"form-control" }}
+                            {% if form.address_line1.errors %}
+                            <div class="text-danger">{{ form.address_line1.errors }}</div>
+                            {% endif %}
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-white">Address Line 2</label>
+                            {{ form.address_line2|add_class:"form-control" }}
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label text-white">City *</label>
+                                {{ form.city|add_class:"form-control" }}
+                                {% if form.city.errors %}
+                                <div class="text-danger">{{ form.city.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label text-white">State *</label>
+                                {{ form.state|add_class:"form-control" }}
+                                {% if form.state.errors %}
+                                <div class="text-danger">{{ form.state.errors }}</div>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label text-white">Postal Code *</label>
+                                {{ form.postal_code|add_class:"form-control" }}
+                                {% if form.postal_code.errors %}
+                                <div class="text-danger">{{ form.postal_code.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label text-white">Country</label>
+                            {{ form.country|add_class:"form-control" }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="fas fa-credit-card me-2"></i>Payment Method</h5>
+                </div>
+                <div class="card-body">
+                    {% for value, label in form.payment_method.field.choices %}
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="radio" name="payment_method" id="payment_{{ value }}" value="{{ value }}" {% if forloop.first %}checked{% endif %}>
+                        <label class="form-check-label text-white" for="payment_{{ value }}">
+                            <strong>{{ label }}</strong>
+                            {% if value == 'card' %}
+                            <p class="text-muted mb-0">Pay securely with your credit/debit card</p>
+                            {% elif value == 'transfer' %}
+                            <p class="text-muted mb-0">Bank transfer details will be provided after order confirmation</p>
+                            {% elif value == 'cash_on_delivery' %}
+                            <p class="text-muted mb-0">Pay when your order is delivered</p>
+                            {% endif %}
+                        </label>
+                    </div>
+                    {% endfor %}
+                    {% if form.payment_method.errors %}
+                    <div class="text-danger">{{ form.payment_method.errors }}</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg w-100">
+                <i class="fas fa-check-circle me-2"></i>Place Order
+            </button>
+        </form>
+    </div>
+
+    <!-- Order Summary -->
+    <div class="col-md-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0"><i class="fas fa-receipt me-2"></i>Order Summary</h5>
+            </div>
+            <div class="card-body">
+                {% for item in cart_items %}
+                <div class="d-flex justify-content-between mb-2 text-white">
+                    <span>{{ item.product.name|truncatechars:25 }} (x{{ item.quantity }})</span>
+                    <strong>₦{{ item.get_total_price }}</strong>
+                </div>
+                {% endfor %}
+                <hr class="text-muted">
+                <div class="d-flex justify-content-between mb-3 text-white">
+                    <h5>Total:</h5>
+                    <h5 class="text-primary">₦{{ total }}</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleAddressForm() {
+    var select = document.getElementById('addressSelect');
+    var form = document.getElementById('newAddressForm');
+    if (select.value === '') {
+        form.style.display = 'block';
+    } else {
+        form.style.display = 'none';
+    }
+}
+</script>
+{% endblock %}
